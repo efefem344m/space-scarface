@@ -27,29 +27,38 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-950 relative overflow-hidden">
-      {/* фоновые блики */}
-      <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute top-[-20%] left-[-10%] w-[600px] h-[600px] rounded-full bg-violet-900/20 blur-3xl" />
-        <div className="absolute bottom-[-20%] right-[-10%] w-[500px] h-[500px] rounded-full bg-indigo-900/20 blur-3xl" />
-      </div>
+    <div className="min-h-screen flex items-center justify-center relative overflow-hidden"
+      style={{ background: "linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%)" }}>
 
-      <div className="relative w-full max-w-md mx-4">
-        {/* карточка */}
-        <div className="bg-gray-900/80 backdrop-blur-xl border border-gray-800 rounded-2xl shadow-2xl overflow-hidden">
+      {/* светящиеся шары */}
+      <div className="absolute top-[-100px] left-[-100px] w-[500px] h-[500px] rounded-full opacity-30"
+        style={{ background: "radial-gradient(circle, #7c3aed, transparent 70%)", filter: "blur(60px)" }} />
+      <div className="absolute bottom-[-100px] right-[-100px] w-[400px] h-[400px] rounded-full opacity-25"
+        style={{ background: "radial-gradient(circle, #4f46e5, transparent 70%)", filter: "blur(60px)" }} />
+      <div className="absolute top-1/2 left-1/4 w-[300px] h-[300px] rounded-full opacity-15"
+        style={{ background: "radial-gradient(circle, #ec4899, transparent 70%)", filter: "blur(80px)" }} />
+
+      {/* карточка */}
+      <div className="relative w-full max-w-md mx-4 z-10">
+        <div
+          className="rounded-2xl border border-white/10 shadow-2xl overflow-hidden"
+          style={{ background: "rgba(255,255,255,0.05)", backdropFilter: "blur(24px)" }}
+        >
           {/* шапка */}
-          <div className="px-8 pt-10 pb-6 text-center border-b border-gray-800">
-            <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-violet-600/20 border border-violet-500/30 mb-4">
-              <span className="text-2xl">🚀</span>
+          <div className="px-8 pt-10 pb-6 text-center"
+            style={{ borderBottom: "1px solid rgba(255,255,255,0.08)" }}>
+            <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl mb-4"
+              style={{ background: "rgba(124,58,237,0.3)", border: "1px solid rgba(124,58,237,0.5)" }}>
+              <span className="text-3xl">🚀</span>
             </div>
-            <h1 className="text-xl font-bold text-white tracking-tight">Space Scarface</h1>
-            <p className="text-gray-500 text-sm mt-1">Войдите в панель управления</p>
+            <h1 className="text-2xl font-bold text-white tracking-tight">Space Scarface</h1>
+            <p className="text-white/40 text-sm mt-1">Панель управления</p>
           </div>
 
           {/* форма */}
           <form onSubmit={handleSubmit} className="px-8 py-8 space-y-5">
             <div className="space-y-2">
-              <label className="text-xs font-medium text-gray-400 uppercase tracking-widest">
+              <label className="text-xs font-semibold text-white/50 uppercase tracking-widest">
                 Логин
               </label>
               <Input
@@ -58,12 +67,13 @@ export default function LoginPage() {
                 placeholder="admin"
                 autoComplete="username"
                 required
-                className="bg-gray-800/60 border-gray-700 text-white placeholder:text-gray-600 h-11 rounded-xl focus:border-violet-500 focus:ring-violet-500/20"
+                className="h-12 rounded-xl text-white placeholder:text-white/20 border-white/10 focus:border-violet-400"
+                style={{ background: "rgba(255,255,255,0.07)" }}
               />
             </div>
 
             <div className="space-y-2">
-              <label className="text-xs font-medium text-gray-400 uppercase tracking-widest">
+              <label className="text-xs font-semibold text-white/50 uppercase tracking-widest">
                 Пароль
               </label>
               <Input
@@ -73,20 +83,23 @@ export default function LoginPage() {
                 placeholder="••••••••"
                 autoComplete="current-password"
                 required
-                className="bg-gray-800/60 border-gray-700 text-white placeholder:text-gray-600 h-11 rounded-xl focus:border-violet-500 focus:ring-violet-500/20"
+                className="h-12 rounded-xl text-white placeholder:text-white/20 border-white/10 focus:border-violet-400"
+                style={{ background: "rgba(255,255,255,0.07)" }}
               />
             </div>
 
             {error && (
-              <div className="flex items-center gap-2 bg-red-900/30 border border-red-800/50 rounded-xl px-4 py-3">
-                <span className="text-red-400 text-sm">{error}</span>
+              <div className="flex items-center gap-2 rounded-xl px-4 py-3 text-sm text-red-300"
+                style={{ background: "rgba(239,68,68,0.15)", border: "1px solid rgba(239,68,68,0.3)" }}>
+                {error}
               </div>
             )}
 
             <Button
               type="submit"
               disabled={loading}
-              className="w-full h-11 bg-violet-600 hover:bg-violet-500 text-white font-medium rounded-xl transition-all duration-200 shadow-lg shadow-violet-900/30 disabled:opacity-60 mt-2"
+              className="w-full h-12 rounded-xl font-semibold text-white border-0 mt-2 transition-all duration-200"
+              style={{ background: loading ? "rgba(124,58,237,0.5)" : "linear-gradient(135deg, #7c3aed, #4f46e5)" }}
             >
               {loading ? (
                 <span className="flex items-center gap-2">
@@ -98,7 +111,7 @@ export default function LoginPage() {
           </form>
         </div>
 
-        <p className="text-center text-gray-700 text-xs mt-6">Space Scarface Admin Panel</p>
+        <p className="text-center text-white/20 text-xs mt-6">Space Scarface · Admin Panel</p>
       </div>
     </div>
   )
