@@ -16,7 +16,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="ru" className="h-full">
-      <body className={`${inter.className} min-h-full bg-gray-950 text-white antialiased`}>
+      <body className={`${inter.className} min-h-full antialiased`} style={{ background: "#FAF7F2", color: "#2D1A1E" }}>
         {children}
       </body>
     </html>
