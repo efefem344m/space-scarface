@@ -1,8 +1,11 @@
 import os
 import fal_client
+from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
+
+load_dotenv()
 
 app = FastAPI()
 
@@ -14,8 +17,6 @@ app.add_middleware(
 )
 
 FAL_KEY = os.environ.get("FAL_KEY", "")
-if FAL_KEY:
-    os.environ["FAL_KEY"] = FAL_KEY
 
 
 class GenerateRequest(BaseModel):
