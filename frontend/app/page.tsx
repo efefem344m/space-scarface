@@ -2,17 +2,16 @@
 
 import { useState } from "react"
 import { Sidebar } from "@/components/sidebar"
-import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 
 const PLATFORMS = ["Telegram", "Instagram", "YouTube", "TikTok", "ВКонтакте"]
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000"
 
 const card = { background: "#FFFFFF", border: "1px solid #E0D3C8", borderRadius: "12px", padding: "24px" }
 const labelStyle = { color: "#7A4E57", fontSize: "13px", fontWeight: 500 }
-const inputClass = "border text-sm h-10"
 const inputStyle = { background: "#FAF7F2", borderColor: "#E0D3C8", color: "#2D1A1E" }
 
 export default function HomePage() {
@@ -26,7 +25,8 @@ export default function HomePage() {
   const [subtitles, setSubtitles] = useState("off")
   const [cta, setCta] = useState("")
   const [generating, setGenerating] = useState(false)
-  const [videoReady, setVideoReady] = useState(false)
+  const [videoUrl, setVideoUrl] = useState<string | null>(null)
+  const [error, setError] = useState("")
   const [selectedPlatforms, setSelectedPlatforms] = useState<string[]>([])
   const [publishing, setPublishing] = useState(false)
   const [published, setPublished] = useState(false)
@@ -40,11 +40,28 @@ export default function HomePage() {
   async function handleGenerate(e: React.FormEvent) {
     e.preventDefault()
     setGenerating(true)
-    setVideoReady(false)
+    setVideoUrl(null)
+    setError("")
     setPublished(false)
-    await new Promise((r) => setTimeout(r, 2500))
-    setGenerating(false)
-    setVideoReady(true)
+    setSelectedPlatforms([])
+
+    try {
+      const res = await fetch(`${API_URL}/generate`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ prompt, duration, ratio, style, topic, cta }),
+      })
+      if (!res.ok) {
+        const data = await res.json()
+        throw new Error(data.detail || "Ошибка генерации")
+      }
+      const data = await res.json()
+      setVideoUrl(data.video_url)
+    } catch (e: unknown) {
+      setError(e instanceof Error ? e.message : "Неизвестная ошибка")
+    } finally {
+      setGenerating(false)
+    }
   }
 
   async function handlePublish() {
@@ -90,7 +107,7 @@ export default function HomePage() {
                   <div key={label} className="space-y-1">
                     <Label style={labelStyle}>{label}</Label>
                     <Select value={value} onValueChange={(v) => v && set(v)}>
-                      <SelectTrigger className={inputClass} style={inputStyle}>
+                      <SelectTrigger className="border text-sm h-10" style={inputStyle}>
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent style={{ background: "#FAF7F2", borderColor: "#E0D3C8", color: "#2D1A1E" }}>
@@ -107,23 +124,34 @@ export default function HomePage() {
                 <Label style={labelStyle}>Тематика</Label>
                 <Input value={topic} onChange={(e) => setTopic(e.target.value)}
                   placeholder="Мотивация, юмор, бизнес..."
-                  className={inputClass} style={inputStyle} />
+                  className="border text-sm h-10" style={inputStyle} />
               </div>
 
               <div className="space-y-1">
                 <Label style={labelStyle}>Призыв к действию (CTA)</Label>
                 <Input value={cta} onChange={(e) => setCta(e.target.value)}
                   placeholder="Подпишись на канал!"
-                  className={inputClass} style={inputStyle} />
+                  className="border text-sm h-10" style={inputStyle} />
               </div>
+
+              {error && (
+                <div className="text-sm px-3 py-2 rounded-lg" style={{ background: "#FDE8E8", color: "#8B1A1A", border: "1px solid #F5C6C6" }}>
+                  {error}
+                </div>
+              )}
 
               <button
                 type="submit"
                 disabled={generating}
                 className="w-full h-10 rounded-lg text-sm font-medium text-white transition-all disabled:opacity-60"
-                style={{ background: generating ? "#9B4A5A" : "#6B1A2A" }}
+                style={{ background: "#6B1A2A" }}
               >
-                {generating ? "⏳ Генерируется..." : "🎬 Сгенерировать"}
+                {generating ? (
+                  <span className="flex items-center justify-center gap-2">
+                    <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                    Генерируется... (1-3 мин)
+                  </span>
+                ) : "🎬 Сгенерировать"}
               </button>
             </form>
           </div>
@@ -132,7 +160,7 @@ export default function HomePage() {
           <div style={card}>
             <h2 className="text-base font-semibold mb-4" style={{ color: "#6B1A2A" }}>Результат</h2>
             <div className="space-y-4">
-              {!videoReady && !generating && (
+              {!videoUrl && !generating && (
                 <div className="aspect-video rounded-lg flex items-center justify-center text-sm"
                   style={{ background: "#F5EEE8", color: "#A07080", border: "1px dashed #D4B8BE" }}>
                   Здесь появится видео
@@ -144,18 +172,17 @@ export default function HomePage() {
                   <div className="w-8 h-8 border-2 border-t-transparent rounded-full animate-spin"
                     style={{ borderColor: "#E0D3C8", borderTopColor: "#6B1A2A" }} />
                   <span className="text-sm" style={{ color: "#7A4E57" }}>Генерация видео...</span>
+                  <span className="text-xs" style={{ color: "#A07080" }}>Обычно занимает 1-3 минуты</span>
                 </div>
               )}
-              {videoReady && (
+              {videoUrl && (
                 <>
-                  <div className="aspect-video rounded-lg flex items-center justify-center"
-                    style={{ background: "#F5EEE8", border: "1px solid #D4B8BE" }}>
-                    <div className="text-center">
-                      <div className="text-4xl mb-2">🎬</div>
-                      <div className="text-sm font-medium" style={{ color: "#6B1A2A" }}>Видео готово</div>
-                      <div className="text-xs mt-1" style={{ color: "#A07080" }}>{duration}с · {ratio} · {style}</div>
-                    </div>
-                  </div>
+                  <video
+                    src={videoUrl}
+                    controls
+                    className="w-full rounded-lg"
+                    style={{ border: "1px solid #E0D3C8" }}
+                  />
 
                   <div className="space-y-2">
                     <Label style={labelStyle}>Опубликовать в:</Label>
